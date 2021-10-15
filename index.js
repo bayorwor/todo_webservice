@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import mongoose from "mongoose";
 import Todo from "./schemas/todoSchhema.js";
 
@@ -12,6 +13,7 @@ mongoose
   .then(() => console.log("DB connected"));
 
 app.use(express.json());
+app.use(cors());
 
 const port = process.env.PORT;
 
@@ -22,6 +24,24 @@ app.get("/", (req, res) => {
 //GET all todos
 app.get("/todos", async (req, res) => {
   const todos = await Todo.find({});
+  if (todos) {
+    return res.status(200).json({
+      status: true,
+      message: "todos fetched successfully",
+      data: todos,
+    });
+  } else {
+    return res.status(400).json({
+      status: false,
+      message: "todos not found",
+    });
+  }
+});
+
+//GET all todos
+app.get("/todos/:status", async (req, res) => {
+  const { status } = req.params;
+  const todos = await Todo.find({}).where("status").equals(status);
   if (todos) {
     return res.status(200).json({
       status: true,
